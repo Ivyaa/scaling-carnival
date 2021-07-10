@@ -1,0 +1,291 @@
+﻿<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <script src="../script/preLoad.js"></script>
+        <script src="../script/plot.js"></script>
+        <script src="../script/time.js"></script>
+        <script src="../script/list.js"></script>
+        <style></style>
+    </head>
+    <body>
+        <script src="../script/cookie.js"></script> 
+        <div id='navigation'></div>
+        <main>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-8 col-xs-12">   <!--intermediate data-->
+                        <div class="row m-1 px-1">   <!--tag-->
+                            <h6 class="p-1 bg-info text-white"><strong>即時觀測資料&emsp;</strong></h6>
+                            <h6 class="p-1 bg-secondary text-white">更新時間: <span id="time"></span></h6>
+                        </div>
+                        <div class="row m-1">   <!--data row1-->
+                            <div class="col-sm-4 col-12 px-1 my-1">
+                                <div class="card bg-light" id="temp">
+                                  <div class="card-body">
+                                        <h5 class="card-title">溫度</h5>
+                                        <h3 class="card-text"><span class="p"></span><span style="font-size:70%;">°C</span></h3>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-12 px-1 my-1">
+                                <div class="card bg-light" id="pres">
+                                  <div class="card-body">
+                                    <h5 class="card-title">氣壓</h5>
+                                    <h3 class="card-text"><span class="p"></span><span style="font-size:70%;">mb</span></h3>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-12 px-1 my-1">
+                                <div class="card bg-light" id="ws">
+                                  <div class="card-body">
+                                    <h5 class="card-title">風速</h5>
+                                    <h3 class="card-text"><span class="p"></span><span style="font-size:70%;">m/s</span></h3>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row m-1">   <!--data row2-->
+                            <div class="col-sm-4 col-12 px-1 my-1">
+                                <div class="card bg-light" id="rh">
+                                  <div class="card-body">
+                                    <h5 class="card-title">相對溼度</h5>
+                                    <h3 class="card-text"><span class="p"></span><span style="font-size:70%;">%</span></h3>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-12 px-1 my-1">
+                                <div class="card bg-light" id="precip">
+                                  <div class="card-body">
+                                    <h5 class="card-title">雨量</h5>
+                                    <h3 class="card-text"><span class="p"></span><span style="font-size:70%;">mm</span></h3>
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-12 px-1 my-1">
+                                <div class="card bg-light" id="wd">
+                                  <div class="card-body">
+                                    <h5 class="card-title">風向</h5>
+                                    <h3 class="card-text">
+                                        <span class="p"></span>
+                                        <sup><span style="font-size:70%;">°</span></sup>
+                                        <image src="../material/up-arrow.svg" height="25" id="arrow" style="transform: rotate(0deg);">
+                                    </h3>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row m-1 px-1">  <!--time series-->
+                            <h6 class="mt-1 p-1 bg-info text-white"><strong>一星期時序圖&emsp;&emsp;</strong></h6>
+                            <div class="px-1">
+                                <select class="form-control form-control-sm" id="timeSeries_var" name="n_h">
+                                    <option value="temp">溫度</option>
+                                    <option value="rh">相對溼度</option>
+                                    <option value="pres">氣壓</option>
+                                    <option value="precip">每分鐘雨量</option>
+                                    <option value="wd">風向</option>
+                                    <option value="ws">風速</option>
+                                </select> 
+                            </div>
+                            <div class="spinner-border" role="status" id="loadingMark">
+                                    <span class="sr-only">Loading...</span>
+                            </div>
+                            <div id="chart" style="width:100%; hight:50%"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-xs-12 row">   <!--other-->
+                        <div class="col-lg-12 col-md-6 col-12">
+                            <div class="row m-1 px-1 col-12">  <!--tag-->
+                                <h6 class="p-1 bg-info text-white"><strong>全天空影像&emsp;&emsp;</strong></h6>
+                            </div>
+                            <div class="row m-1">  <!--whole sky photo-->
+                                <div class="col-lg-12 col-md-12 col-sm-6 col-12"> 
+                                    <image src="https://via.placeholder.com/320">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6 col-12">
+                            <div class="row m-1 col-12">   <!--tag-->   
+                                <h6 class="p-1 bg-info text-white"><strong>最新人工觀測&emsp;</strong></h6>
+                            </div>
+                            <div class="row m-1 col-12">  <!--lattest obs-->
+                                <ul>
+                                  <li>觀測時間:&emsp;<span id="time_obs"></span></li>
+                                  <li>溫度:&emsp;<span id="temp_obs"></span></li>
+                                  <li>溼球溫度:&emsp;<span id="wtemp_obs"></span></li>
+                                  <li>24H雨量:&emsp;<span id="24precip_obs"></span></li>
+                                  <li>蒸發皿水位:&emsp;<span id="evapLev_obs"></span></li>
+                                  <li>蒸發皿水溫:&emsp;<span id="evapTemp_obs"></span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        
+        <!-- contact info-->
+        <footer>
+        </footer>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                //update time
+                let timeT = getTimeNow()
+                
+                //auto observation
+                let url = 'http://140.115.35.136:8044/cgi-bin/getData_latest.py';
+                let data = {
+                            variables:["DateTimeUTC","CWB_Temperature","CWB_Humidity","CWB_Pressure","CWB_WindDirection","CWB_WindSpeed","CWB_Rain05"],
+                            time:timeT,
+                            mode:'auto',
+                            rec_var:'CWB_Temperature'};
+                let dataSend = Object.keys(data).map(function (keyName) {
+                                return escape(keyName) + '=' + escape(data[keyName])
+                }).join('&');
+
+                fetch(url, {
+                    method: 'POST',
+                    body: dataSend,
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                    }
+                }).then(res => res.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => {
+                    //console.log(response);
+                    let data_input = {
+                                    temp:response['CWB_Temperature'],
+                                    rh:response['CWB_Humidity'],
+                                    wd:response['CWB_WindDirection'],
+                                    ws:response['CWB_WindSpeed'],
+                                    pres:response['CWB_Pressure'],
+                                    precip:response['CWB_Rain05']};
+
+                    $("#time").html(htmlTime(response['DateTimeUTC'][0].toString(),'%Y%M%D%h%m%s'));
+                    
+                    //check wrong data and warning
+                    Object.keys(data_input).forEach(function(item){
+                        $('#'+item).children('.card-body').children('h3').children('.p').text(data_input[item][0]);
+                        if(data_input[item][0] > List[item].max){
+                            $('#'+item).addClass('border-danger');
+                            $('#'+item).children('.card-body').addClass('text-danger');
+                            
+                        }else if(data_input[item][0] < List[item].min){
+                            $('#'+item).addClass('border-primary');
+                            $('#'+item).children('.card-body').addClass('text-primary');
+                        }else if(data_input[item][0] == null){
+                            $('#'+item).addClass('border-black-50');
+                            $('#'+item).children('.card-body').addClass('text-black-50');
+                            $('#'+item).children('.card-body').children('h3').children('.p').text('--');
+                        }else{
+                            $('#'+item).addClass('border-secondary');
+                            $('#'+item).children('.card-body').addClass('text-dark');
+                            //$('#'+item).children('.card-body').children('image').attr('src','../material/sun.svg')
+                        }
+                    });
+                
+                    //rotate wind direction
+                    let rot = parseInt(data_input['wd'])+180
+                    if(data_input['wd'] != null){
+                        $('#arrow').css('transform','rotate('+rot.toString()+'deg)');
+                    };
+                 });
+                 
+                //plot timeSeries ,Temperature is default
+                let dummy = timeToString(new Date(Date.parse(timeT)-7*1000*60*60*24));
+                SeriesData('temp',[sqltime(timeT,'%Y-%M-%DT%h:%m'),sqltime(dummy,'%Y-%M-%DT%h:%m')]);
+               
+                //lattest obs data
+                url = 'http://140.115.35.136:8044/cgi-bin/getData_latest.py';
+                data = {
+                        variables:["ObsTime","Temperature","Temperature_wet","Precipitation","EvapLevel","EvapTemperature"],
+                        time:timeT,
+                        mode:'obs',
+                        rec_var:'Temperature'};
+                dataSend = Object.keys(data).map(function (keyName) {
+                                return escape(keyName) + '=' + escape(data[keyName])
+                }).join('&');
+
+                fetch(url, {
+                    method: 'POST',
+                    body: dataSend,
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                    }
+                }).then(res => res.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => {
+                    console.log(response)
+                    $('#time_obs').html(response['ObsTime']);
+                    $('#temp_obs').html(response['Temperature']+'\xB0C');
+                    $('#wtemp_obs').html(response['Temperature_wet']+'\xB0C');
+                    $('#24precip_obs').html(response['Precipitation']+'mm');
+                    $('#evapLev_obs').html(response['EvapLevel']+'mm');
+                    $('#evapTemp_obs').html(response['EvapTemperature']+'\xB0C');
+                });
+                
+                
+            });
+            
+            $('#timeSeries_var').change(function(){
+                let selection = $('#timeSeries_var').val();
+                console.log(selection);
+                let timeT = getTimeNow();
+                let dummy = timeToString(new Date(Date.parse(timeT)-7*1000*60*60*24));
+
+                $('#loadingMark').show();
+                SeriesData(selection,[sqltime(timeT,'%Y-%M-%DT%h:%m'),sqltime(dummy,'%Y-%M-%DT%h:%m')]);
+            });
+            
+            function SeriesData(v,t){ //v: variable wanted to request(need List!); t: array including start and end
+                let url = 'http://140.115.35.136:8044/cgi-bin/getData_series.py';
+                let data = {
+                            variables:["DateTimeUTC",List[v].columnName],
+                            timePeriod:t};
+                let dataSend = Object.keys(data).map(function (keyName) {
+                                return escape(keyName) + '=' + escape(data[keyName])
+                }).join('&');
+
+                fetch(url, {
+                    method: 'POST',
+                    body: dataSend,
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                    }
+                }).then(res => res.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => {
+                    //console.log(response);
+                    
+                    let timeSet = [];
+                    Object.values(response['DateTimeUTC']).forEach(function(item){
+                                   let a = item.toString();
+                                   timeSet.push(a.slice(0,4)+'-'+a.slice(4,6)+'-'+a.slice(6,8)+' '+a.slice(8,10)+':'+a.slice(10,12)+':'+a.slice(12,14));
+                                  });
+                    let data_y = response[List[v].columnName];
+                    config = plot_timeSeries(List[v].name,List[v].unit,beforePlot(timeSet,data_y));
+                    $('#chart').highcharts(config);
+                    $('#loadingMark').hide();
+                 });
+            };
+            
+            function beforePlot(time,data){
+                let data_plot = [];
+                for (let i = 0;i<time.length;i++){
+                        data_plot.push([
+                            new Date(time[i]).getTime()+28800000,
+                            data[i]
+                        ]);
+                };
+                return data_plot;
+            };
+            
+            
+            //setTimeout("self.location.reload()",5000);   //自動更新
+        </script>
+    </body>
+</html>

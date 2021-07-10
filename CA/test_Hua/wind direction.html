@@ -1,0 +1,129 @@
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+		<script src="./script/preLoad.js"></script>
+        <script src="./script/plot.js"></script>
+        <script src="./script/time.js"></script>
+        <script src="./script/list.js"></script>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+
+	</head>
+	<body>
+<div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+
+		<script type="text/javascript">
+			console.log('before fetch',Date.now());   //show timestamp
+        var record = [];
+        let timeT = getTimeNow();
+        let dummy = timeToString(new Date(Date.parse(timeT)-1*1000*60*60*24));  //?‚é??·åº¦
+        
+        let url = 'http://140.115.35.136:8044/cgi-bin/getData_series.py';
+        let data = {
+                    variables:["CWB_WindDirection"],
+                    timePeriod:[sqltime(timeT,'%Y-%M-%DT%h:%m'),sqltime(dummy,'%Y-%M-%DT%h:%m')]};
+        let dataSend = Object.keys(data).map(function (keyName) {
+                        return escape(keyName) + '=' + escape(data[keyName]);
+        }).join('&');
+
+	fetch(url, {
+            method: 'POST',
+            body: dataSend,
+            headers:{
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+            }
+        }).then(res => res.json())
+        .catch(error => console.error('Error:', error))
+        .then(response => { 
+            console.log('before plot',Date.now());   //show timestamp       
+            let seriesTime = response["DateTimeUTC"];
+            let a = {};
+            for(let i = 1; i<data["variables"].length; i++){
+                a = {};
+                a.name = data["variables"][i];
+                
+                a.color = varList[data["variables"][i]]['color'];
+                a.data = dataArange(seriesTime,data["variables"][i],response[data["variables"][i]]);
+                record.push(a);
+            }
+            document.addEventListener('DOMContentLoaded', plot_scatter('container',record));
+            console.log('after plot',Date.now());   //show timestamp
+        });
+
+
+Highcharts.chart('container', {
+    chart: {
+        type: 'scatter',
+        zoomType: 'xy'
+    },
+    accessibility: {
+        description: 'A scatter plot compares time and wind direction.'
+ },
+    title: {
+        text: 'time and wind direction'
+    },
+    subtitle: {
+        text: 'made by hua'
+    },
+    xAxis: {
+        title: {
+            enabled: true,
+            text: 'Time'
+        },
+        startOnTick: true,
+        endOnTick: true,
+        showLastLabel: true
+    },
+    yAxis: {
+        title: {
+            text: 'direction'
+        }
+    },
+    legend: {
+        layout: 'vertical',
+        align: 'left',
+        verticalAlign: 'top',
+        x: 100,
+        y: 70,
+        floating: true,
+        backgroundColor: Highcharts.defaultOptions.chart.backgroundColor,
+        borderWidth: 1
+    },
+    plotOptions: {
+        scatter: {
+            marker: {
+                radius: 5,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineColor: 'rgb(100,100,100)'
+                    }
+                }
+            },
+            states: {
+                hover: {
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            tooltip: {
+                headerFormat: '<b>{series.name}</b><br>',
+                pointFormat: '{point.x} cm, {point.y} kg'
+            }
+        }
+    },
+    series: [{
+        name: 'direction',
+        color: 'rgba(223, 83, 83, .5)',
+        data:a.data
+    }]
+});
+
+		</script>
+	</body>
+</html>

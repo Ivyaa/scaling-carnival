@@ -1,0 +1,17 @@
+main {
+    text-align: center;
+}
+main div {
+    position: relative;
+    top:40.5px;
+    display: inline-block;
+    width: 80vw;
+    max-width: 80vw;
+}
+main div div iframe {
+    height: calc(1000/1344*80vw);
+}
+footer {
+    position: relative;
+    top:40px;
+}

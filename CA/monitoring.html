@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+		<script src="./script/preLoad.js"></script>
+        <script src="./script/plot.js"></script>
+        <script src="./script/time.js"></script>
+        <script src="./script/list.js"></script>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    </head>
+    <body>   
+        <div id='navigation'></div>
+        <script src="./script/cookie.js"></script> 
+        
+		<div class="container-fluid">
+            <div id="container" style="width:100%;"></div>
+            <div class="bd-example px-2">
+                <p>數值說明</p>
+                <ul class="list-inline px-1">
+                      <li class="list-inline-item">-100: 運作正常</li>
+                      <li class="list-inline-item">-200: 無此資料</li>
+                      <li class="list-inline-item">-300: 資料小於設定最小值</li>
+                      <li class="list-inline-item">-400: 資料大於設定最大值</li>
+                </ul>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div id="container" style="width:100%;"></div>
+            <div class="bd-example px-2">
+                <p>各項目極值</p>
+                <ul class="list-inline px-1">
+                      <li class="list-inline-item">CWB_Temperature: 最大值 50，最小值 0 |</li>
+                      <li class="list-inline-item">CWB_Rain05: 最大值 20，最小值 0 |</li>
+                      <li class="list-inline-item">CWB_WindSpeed: 最大值 10，最小值 0 |</li>
+                      <li class="list-inline-item">Rain01: 最大值 10，最小值 0 |</li>
+                      <li class="list-inline-item">EvapLevel: 最大值 200，最小值 170 |</li>
+                </ul>
+            </div>
+        </div>
+        <script type="text/javascript">
+        console.log('before fetch',Date.now());   //show timestamp
+        var record = [];
+        let timeT = getTimeNow();
+        let dummy = timeToString(new Date(Date.parse(timeT)-1*1000*60*60*24));  //一天
+        
+        let url = 'http://140.115.35.136:8044/cgi-bin/getData_series.py';
+        let data = {
+                    variables:["DateTimeUTC","CWB_Temperature","CWB_Rain05","CWB_WindSpeed","Rain01","EvapLevel","MaintainFlag"],
+                    timePeriod:[sqltime(timeT,'%Y-%M-%DT%h:%m'),sqltime(dummy,'%Y-%M-%DT%h:%m')],
+                    lab:'CA'};
+        let dataSend = Object.keys(data).map(function (keyName) {
+                        return escape(keyName) + '=' + escape(data[keyName]);
+        }).join('&');
+
+        fetch(url, {
+            method: 'POST',
+            body: dataSend,
+            headers:{
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+            }
+        }).then(res => res.json())
+        .catch(error => console.error('Error:', error))
+        .then(response => { 
+            console.log('before plot',Date.now());   //show timestamp       
+            let seriesTime = response["DateTimeUTC"];
+            let a = {};
+            for(let i = 1; i<data["variables"].length; i++){
+                a = {};
+                a.name = data["variables"][i];
+                
+                a.color = varList[data["variables"][i]]['color'];
+                a.data = dataArange(seriesTime,data["variables"][i],response[data["variables"][i]]);
+                record.push(a);
+            }
+            document.addEventListener('DOMContentLoaded', plot_scatter('container','','condition',record));
+            console.log('after plot',Date.now());   //show timestamp
+        });
+        
+        function dataArange(time,dataname,data){
+            // converting
+            //console.log(dataname,data.slice(-3));
+            data = data.map(function(item){
+               if(!item && typeof(item) === 'object'){
+                    return -200; //none
+               }else if(item > varList[dataname]['max']){
+                    return -400; // range(high)
+               }else if(item < varList[dataname]['min']){
+                    return -300; // range(low)
+               }else{
+                    return -100; //good
+               }
+            
+            });
+            //console.log('           after con',dataname,data.slice(-3));
+            // combination
+            let result = [];
+            let t;
+            for(var i = 0; i<time.length; i++){
+                t = new Date(htmlTime(String(time[i]),'%Y%M%D%h%m%s')).getTime()+28800000;
+                result.push([t,data[i]]); 
+            };
+            return result;
+            
+        };
+
+        </script>
+    </body>
+</html>

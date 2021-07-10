@@ -1,0 +1,248 @@
+﻿<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<script src="../script/preLoad.js"></script>
+        <script src="../script/time.js"></script>
+
+        <style></style>
+   
+    </head>
+    <body>    
+        <script src="../script/cookie.js"></script> 
+        <div id='navigation'></div>
+      
+        <!--obs input-->
+        <main>
+            <form class="container-fluid">
+                <div class="form-row px-4 col-12">  
+                    <div class="form-group col-md-5 mt-3">
+                        <label for="time" class="mx-2">觀測時間 : </label>
+                        <input type="datetime-local" name="time" id="time" class="form-control col-md-8" required>
+                    </div>
+                    <div class="form-group col-md-5 mt-3">
+                        <label for="observer" class="mx-2">觀測人員 : </label>
+                        <input type="text" name="observer" id="observer" class="form-control col-md-8" readonly>
+                    </div>
+                </div>
+                <div class="form-row px-4 col-12">  
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="temp" class="mx-2">現在溫度(°C) :</label>
+                        <input type="text" name="temp" id="temp" class="form-control col-md-10">
+                    </div>
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="temp_d" class="mx-2">溼球溫度(°C) : </label>
+                        <input type="text" name="temp_d" id="temp_d" class="form-control col-md-10">
+                    </div>
+					<!--<div class="form-group col-md-3 mt-3">
+                        <label for="pressure" class="mx-2">氣壓(mb) :</label>
+                        <input type="text" name="pressure" id="pressure" class="form-control col-md-10">
+                    </div>-->
+					<div class="form-group col-md-3 mt-3">
+                        <label for="precip" class="mx-2">降水量(mm) : </label>
+                        <input type="text" name="precip" id="precip" class="form-control col-md-10">
+                    </div>
+                </div>
+                <!--
+                <div class="form-row px-4 col-12">  
+                    <div class="form-group col-md-4 mt-3">
+                        <label for="temp_max" class="mx-2">最高溫度(°C) : </label>
+                        <input type="text" name="temp_max" id="temp_max" class="form-control">
+                    </div>
+                    <div class="form-group col-md-4 mt-3">
+                        <label for="temp_min" class="mx-2">最低溫度(°C) : </label>
+                        <input type="text" name="temp_min" id="temp_min" class="form-control">
+                    </div>
+                </div>
+                <div class="form-row px-4 col-12">  
+                    <div class="form-group col-md-4 mt-3">
+                        <label for="wd" class="mx-2">風向(°) : </label>
+                        <input type="text" name="wd" id="wd" class="form-control">
+                    </div>
+                    <div class="form-group col-md-4 mt-3">
+                        <label for="ws" class="mx-2">風速(m/s) : </label>
+                        <input type="text" name="ws" id="ws" class="form-control">
+                    </div>
+                </div>
+                -->
+                <div class="form-row px-4 col-12">
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="evapTemp" class="mx-2">蒸發皿水溫(°C) : </label>
+                        <input type="text" name="evapTemp" id="evapTemp" class="form-control col-md-10">
+                    </div>
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="evapLevel" class="mx-2">蒸發皿水位高(mm) : </label>
+                        <input type="text" name="evapLevel" id="evapLevel" class="form-control col-md-10">
+                    </div>
+                </div>
+                <div class="form-row px-4 col-12">
+                    <!--<small>無法觀測請填9</small>-->
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="now" class="mx-2">現在天氣代碼 : </label>
+                        <input type="text" name="now" id="now" class="form-control col-md-10">
+                        <label for="cloud_t" class="mx-2">總雲量: </label>
+                        <select class="form-control col-md-10" id="cloud_t" name="n_total">
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>6</option>
+							<option>7</option>
+							<option>8</option>
+							<option value=9>/<option>
+						</select>
+                    </div>  
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="cloud_hc" class="mx-2">高雲雲種代碼 : </label>
+                        <input type="text" name="cloud_hc" id="cloud_hc" class="form-control col-md-10">
+                        <label for="cloud_h" class="mx-2">高雲雲量: </label>
+						<select class="form-control col-md-10" id="cloud_h" name="n_h">
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>6</option>
+							<option>7</option>
+							<option>8</option>
+							<option value=9>/</option>
+						</select>                    
+					</div>  
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="cloud_mc" class="mx-2">中雲雲種代碼 : </label>
+                        <input type="text" name="cloud_mc" id="cloud_mc" class="form-control col-md-10">
+                        <label for="cloud_m" class="mx-2">中雲雲量: </label>
+						<select class="form-control col-md-10" id="cloud_m" name="n_m">
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>6</option>
+							<option>7</option>
+							<option>8</option>
+							<option value=9>/</option>
+						</select>                    
+					</div>  
+                    <div class="form-group col-md-3 mt-3">
+                        <label for="cloud-lc" class="mx-2">低雲雲種代碼 : </label>
+                        <input type="text" name="cloud_lc" id="cloud_lc" class="form-control col-md-10">
+                        <label for="cloud-l" class="mx-2">低雲雲量: </label>
+                        
+						<select class="form-control col-md-10" id="cloud_l" name="n_l">
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>6</option>
+							<option>7</option>
+							<option>8</option>
+							<option value=9>/</option>
+						</select>                    
+					</div>
+                </div>
+                <div class="form-row px-4 col-12">
+                    <div class="form-group col-md-12 mt-3">
+                        <label for="comment" class="mx-2">其他事項 : </label>
+                        <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <!--
+                <div class="form-row px-4 col-12">
+                    <div class="form-group mr-3 mt-3">
+                        <label for="maintain" class="mx-2">日常維護紀錄 : </label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="evapWash" value="evapWash">
+                            <label class="form-check-label" for="evapWash">清洗蒸發皿</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="pyrometer" value="pyrometer">
+                            <label class="form-check-label" for="pyrometer">擦拭輻射計</label>
+                        </div>
+                    </div>
+                </div>
+                -->
+                <button type="button" id="cleaning" class="btn btn btn-outline-success mx-3 mt-3" data-toggle='button' 
+                        onclick='textin("comment","Evaporation pan Washing.")'>此為洗蒸發皿後的水溫資料</button>
+				<button type="button" id="btn_submit" class="btn btn-primary mx-3 mt-3 float-right">送出</button>
+                <button type="reset" class="btn btn-dark mx-3 mt-3 float-right">重新輸入</button>
+            </form>
+        </main>
+        
+        <script type="text/javascript">
+            //fill the present time
+            $(document).ready(function(){
+                $("#time").val(getTimeNow); //set time automatically
+                $("#observer").val(getCookie('Name'));
+                $("#btn_submit").click(function(){
+                    if(checkEmpty('time')&& checkEmpty('observer')){
+                        let url = 'http://140.115.35.136:8044/cgi-bin/upload.py';
+                        let data = {time: $("#time").val().replace('T',' '),
+                                    observer: $("#observer").val(),
+                                    temp: $("#temp").val(),
+                                    temp_d: $("#temp_d").val(),
+                                    precip: $("#precip").val(),
+                                    evapTemp: $("#evapTemp").val(),
+                                    evapLevel: $("#evapLevel").val(),
+                                    now: $("#now").val(),
+                                    cloud_t: $("#cloud_t").val(),
+                                    cloud_hc: $("#cloud_hc").val(),
+                                    cloud_h: $("#cloud_h").val(),
+                                    cloud_mc: $("#cloud_mc").val(),
+                                    cloud_m: $("#cloud_m").val(),
+                                    cloud_lc: $("#cloud_lc").val(),
+                                    cloud_l: $("#cloud_l").val(),
+                                    comment: $("#comment").val()};
+                        let dataSend = Object.keys(data).map(function (keyName) {
+                                        return escape(keyName) + '=' + escape(data[keyName])
+                        }).join('&');
+                        //let dataSend = encodeURI(JSON.stringify(data))
+
+                        fetch(url, {
+                            method: 'POST',
+                            body: dataSend,
+                            headers:{
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                            }
+                        }).then(res => res.text())
+                        .catch(error => console.error('Error:', error))
+                        .then(response => {
+                            console.log(response);
+                            alert(response);
+                        })
+                        .then(response => window.location='http://140.115.35.136:8044/CA/test_lyc/upload_message.html');
+                    };
+                });
+            });
+            function checkEmpty(id){
+                id = '#'+id;
+                if($(id).val()== ""){
+                    alert('觀測時間or觀測人員不可以是空白的!')
+                    console.log('Empty observer or empty obsTime.')
+                    return false;
+                }else{ 
+                    return true;
+                };
+            };
+            function textin(id,text){
+                id = "#"+id;
+                str = $(id).val();
+                if(str.match(text) != null){
+                    $(id).val(str.replace(text,''));
+                }else{
+                    $(id).val(text+'\n'+str);
+                };
+            };
+            
+        </script>
+    </body>
+</html>

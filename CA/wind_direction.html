@@ -1,0 +1,79 @@
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+		<script src="./script/preLoad.js"></script>
+        <script src="./script/plot.js"></script>
+        <script src="./script/time.js"></script>
+        <script src="./script/list.js"></script>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+
+	</head>
+	<body>
+<div id="container" style="min-width: 400px; height: 650px; max-width: 1000px; margin: 0 auto"></div>
+
+		<script type="text/javascript">
+			console.log('before fetch',Date.now());   //show timestamp
+        var record = [];
+        let timeT = getTimeNow();
+        let dummy = timeToString(new Date(Date.parse(timeT)-7*1000*60*60*24));  //?‚é??·åº¦
+        
+        let url = 'http://140.115.35.136:8044/CA/test_Hua/getData_series.py';
+        let data = {
+                    variables:["DateTimeUTC","CWB_WindDirection"],
+                    timePeriod:[sqltime(timeT,'%Y-%M-%DT%h:%m'),sqltime(dummy,'%Y-%M-%DT%h:%m')]};
+        let dataSend = Object.keys(data).map(function (keyName) {
+                        return escape(keyName) + '=' + escape(data[keyName]);
+        }).join('&');
+
+	fetch(url, {
+            method: 'POST',
+            body: dataSend,
+            headers:{
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+            }
+        }).then(res => res.json())
+        .catch(error => console.error('Error:', error))
+        .then(response => { 
+            console.log('before plot',Date.now());   //show timestamp 
+            console.log(response);      
+            let seriesTime = response["DateTimeUTC"];
+            let a = {};
+            for(let i = 1; i<data["variables"].length; i++){
+                console.log(varList[data["variables"]]);
+                a = {};
+                a.name = data["variables"][i];
+                
+                a.color = varList[data["variables"][i]]['color'];
+                a.data = dataArange(seriesTime,data["variables"][i],response[data["variables"][i]]);
+                //a.data = 
+                record.push(a);
+            }
+            document.addEventListener('DOMContentLoaded', plot_scatter2('container','','degree(\u00b0)',record));
+            console.log('after plot',Date.now());   //show timestamp
+            console.log(record);
+        });
+        
+ function dataArange(time,dataname,data){
+            // converting
+            //console.log(dataname,data.slice(-3));
+            
+            //console.log('           after con',dataname,data.slice(-3));
+            // combination
+            let result = [];
+            let t;
+            for(var i = 0; i<time.length; i++){
+                t = new Date(htmlTime(String(time[i]),'%Y%M%D%h%m%s')).getTime()+28800000;
+                result.push([t,data[i]]); 
+            };
+            return result;
+            
+        };
+
+		</script>
+	</body>
+</html>

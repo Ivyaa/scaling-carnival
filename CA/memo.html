@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+		<script src="./script/preLoad.js"></script>
+        <!--<script src="./script/plot.js"></script>-->
+        <script src="./script/time.js"></script>
+        <!--<script src="./script/list.js"></script>-->
+        <!--<script src="https://code.highcharts.com/highcharts.js"></script>-->
+
+    </head>
+    <body>   
+        <div id='navigation'></div>
+        <script src="./script/cookie.js"></script> 
+        
+		<div class="container-fluid">
+            <form class="container-fluid">
+                <div class="form-row px-4 col-12">  
+                    <div class="form-group col-md-5 mt-3">
+                        <label for="date" class="mx-2">紀錄日期 : </label>
+                        <input type="date" name="date" id="date" class="form-control col-md-8" required>
+                    </div>
+                    <div class="form-group col-md-5 mt-3">
+                        <label for="observer" class="mx-2">紀錄人員 : </label>
+                        <input type="text" name="observer" id="observer" class="form-control col-md-8" required>
+                    </div>
+                </div>
+                <div class="form-row px-4 col-12">
+                    <div class="form-group col-md-12 mt-3">
+                        <label for="comment" class="mx-2">紀錄事項 : </label>
+                        <textarea name="comment" id="comment" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-row px-4 col-12">
+                    <p class="col-md-12"><small>換行請輸入&lt;br&gt;後直接寫在後面!</small></p>
+                    <p class="col-md-12"><small>如果送出後沒有跳出成功上傳的訊息，且下面的紀錄無更新，可能代表你輸入太多字。150字左右就差不多了，請長話短說，或是分兩次上傳。</small></p>
+                    <p class="col-md-12 text-danger"><small>目前尚無更改以上傳內容的功能，送出前務必確認日期及資料的內容是否正確</small></p>
+                    <p class="col-md-12"><small>有其他問題請洽現任站長</small></p>
+                </div>
+                <div class="form-row px-4 col-12 d-flex flex-row-reverse">  
+                    <button type="button" id="btn_submit" class="btn btn-primary mx-3 mt-3">送出</button>
+                </div>          
+            </form>
+            <div class="container-fluid px-6 my-3">
+                <table class="table table-hover table-sm table-bordered table-responsive-sm">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">紀錄時間</th>
+                            <th scope="col">紀錄者</th>
+                            <th scope="col">紀錄事項</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+		</div>
+        <script type="text/javascript">
+        $(document).ready(function(){
+            // default date
+            let timenow = getTimeNow();
+            $('#date').val(timenow.substr(0,10));
+            
+            // request memo from database
+            requestmemo();
+            
+            // submit
+            $("#btn_submit").click(function(){
+                if(checkEmpty('date')&& checkEmpty('observer')){
+                    let url = 'http://140.115.35.136:8044/cgi-bin/upload.py';
+                    let data = {
+                                mode:'memo',
+                                time: $("#date").val().replace('T',' '),
+                                observer: $("#observer").val(),
+                                comment:$("#comment").val()
+                                };
+                    let dataSend = Object.keys(data).map(function (keyName) {
+                                    return escape(keyName) + '=' + escape(data[keyName])
+                    }).join('&');
+
+                    fetch(url, {
+                        method: 'POST',
+                        body: dataSend,
+                        headers:{
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                        }
+                    }).then(res => res.text())
+                    .catch(error => console.error('Error:', error))
+                    .then(response => {
+                        console.log(response);
+                        alert(response);
+                        requestmemo();
+                    })
+                };
+            });
+            
+            function requestmemo(){
+                let url = 'http://140.115.35.136:8044/cgi-bin/txtRequest.py';
+                let data = {
+                            time:"time txt"
+                            };
+                let dataSend = Object.keys(data).map(function (keyName) {
+                                return escape(keyName) + '=' + escape(data[keyName]);
+                }).join('&');
+
+                fetch(url, {
+                    method: 'POST',
+                    body: dataSend,
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                    }
+                }).then(res => res.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => { 
+                    //console.log(response);
+                    response.sort(function(a,b){return Date.parse(b['Date']) - Date.parse(a['Date']);});  //order from latest to oldest
+                    $('tbody').empty();  // clear and then append
+                    for(let i = 0; i<response.length; i++){
+                        $("tbody").append("<tr><td>"+response[i]["Date"]+"</td><td>"+unescape(response[i]["Recorder"])+"</td><td><pre>"+unescape(response[i]["Content"])+"</pre></td></tr>");
+                    }
+                });
+            }
+            
+            function checkEmpty(id){
+                id = '#'+id;
+                if($(id).val()== ""){
+                    alert('觀測時間or觀測人員不可以是空白的!')
+                    console.log('Empty observer or empty obsTime.')
+                    return false;
+                }else{ 
+                    return true;
+                };
+            };
+        });
+        
+
+        </script>
+    </body>
+</html>

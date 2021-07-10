@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <script src="./script/preLoad.js"></script>
+        <script src="./script/time.js"></script>
+        <style>
+        </style>
+    </head>
+  
+    <body>   
+        <script src="./script/cookie.js"></script> 
+        <div id='navigation'></div>
+        
+        <!-- set time -->
+        <form class="container-fluid form-inline">
+            <h4 class="pt-3 px-4"><strong>請輸入時間 </strong></h4>
+            <div class="form-row px-4 col-12">
+                <div class="form-group p-2 col-md-4">
+                    <label for="time" class="mx-2">開始時間 : </label>
+                    <input type="datetime-local" name="etime" id="stime" class="form-control" required>
+                </div>
+                <div class="form-group p-2 col-md-4">
+                    <label for="observer" class="mx-2">結束時間 : </label>
+                    <input type="datetime-local" name="etime" id="etime" class="form-control" required>
+                </div>
+                <button id="checkTime" type="button" class="btn btn-dark col-12 col-md-1 m-2">確認</button>
+                <button id="resetTime" type="button" class="btn btn-dark col-12 col-md-1 m-2">重設時間</button>
+            </div>
+        </form>
+        
+        <!-- variables -->
+        <div class="container-fluid">
+            <div class="spinner-border" role="status" id="loadingMark">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <h4 class="pt-3 px-4">
+                <strong id="p1">請選擇要下載的資料</strong>
+            <h4>
+            
+            <div id="btns" class="row px-4 "></div>
+            <div id="dataSubmit" class="row px-4 ">
+                <button id="varSubmit" type="button" class="btn btn-primary btn-block col-12 p-2" >資料送出</button>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="myBar" role="progressbar" aria-valuenow="60"
+                     aria-valuemin="0" aria-valuemax="100" style="width: 0%; background-color:#00BB00">
+                </div>
+            </div>
+            
+        </div>
+      
+        <script type="text/javascript">
+            var btnList={};
+            var dlVars=[];
+            $('#etime').val(getTimeNow);   //自動填入時間
+            $('#stime').val(addTime(-1440));
+            $('.progress').hide();
+            $('#loadingMark').hide();
+
+            $(document).ready(function(){
+                $("#p1").hide();
+                $("#dataSubmit").hide();
+                 
+                //查詢資料庫有的資料
+                $("#checkTime").click(function(){
+                    $('#loadingMark').show();
+                                        
+                    dlVars=[];                   
+                    if(oneYear($('#stime').val(),$('#etime').val())){  //檢查下載時間區間是否小於366天
+                        $('input').attr('readonly','readonly');
+                        let url = 'http://140.115.35.136:8044/cgi-bin/test/getVars.py';
+                        let data = {
+                                timeRange:[$("#stime").val(),$("#etime").val()],
+                                user:getCookie('User')
+                            };
+                        let dataSend = Object.keys(data).map(function (keyName) {
+                                        return escape(keyName) + '=' + escape(data[keyName])
+                        }).join('&');
+                        fetch(url, {
+                            method: 'POST',
+                            body: dataSend,
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                            }
+                        }).then(res => res.json())
+                        .catch(error => console.error('Error:', error))
+                        .then(response => {
+                            btnList = response['dataAvalible'];
+                            let i;
+                            let text = "";
+                            for (i = 0; i < btnList.length; i++) {
+                                text += '<button type="button" class="btn btn-outline-secondary col-12 col-md-3 p-2 m-1" data-toggle="button" onclick="collectVars(\''+btnList[i]+'\')">'+btnList[i]+"</button>"+"</br>";
+                                }
+                            $("#btns").html(text);
+                            
+                            $('#loadingMark').hide();
+                            $("#p1").show();
+                            $('#btns').show();
+                            $("#dataSubmit").show();
+                        });
+                    }else{
+                        alert('下載時間不可以超過365天!  時間也不可以從現在到過去!');
+                        $('#loadingMark').hide();
+                        $("#p1").hide();
+                        $("#dataSubmit").hide();
+                        $('#btns').hide();
+                    }
+                });
+                
+                //下載資料
+                $("#varSubmit").click(function(){
+                    $('#myBar').css("width","0%");
+                    $('.progress').show();
+                    move($('#stime').val(),$('#etime').val());
+                    $('.btn').attr('disabled','disabled');
+                    
+                    let url = 'http://140.115.35.136:8044/cgi-bin/test/download.py';
+                    let data = {
+                            dataVar:dlVars,
+                            timePeriod:[$("#stime").val(),$("#etime").val()]
+                        };  
+                    let dataSend = Object.keys(data).map(function (keyName) {
+                                    return escape(keyName) + '=' + escape(data[keyName])
+                    }).join('&');
+                    
+                    fetch(url, {
+                        method: 'POST',
+                        body: dataSend,
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                        }
+                    }).then(res => res.blob())
+                    .catch(error => console.error('Error:', error))
+                    .then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        let a = document.createElement('a');
+                        a.download = 'download.txt';
+                        a.href = url;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();// document.body.removeChild(a)
+                        
+                        $('.btn').removeAttr('disabled');                     
+                        $('#myBar').css("width","100%");
+                        $('.progress').hide();
+                    })
+                    .catch(err => console.error(err));
+                });
+                
+                //重新輸入時間
+                $("#resetTime").click(function(){
+                    $('input').removeAttr('readonly');   
+                    $("#p1").hide();
+                    $('#btns').hide();
+                    $("#dataSubmit").hide();
+                })
+            });
+            
+            function collectVars(a){
+                if(dlVars.includes(a)){
+                    let index=dlVars.indexOf(a);
+                    dlVars.splice(index,1);
+                    //console.log("no",dlVars);
+                }else{
+                    dlVars.push(a);
+                    //console.log("yes",dlVars);
+                }
+            }
+            function oneYear(st,et){
+                let interval = new Date(et)-new Date(st);
+                if(interval/86400000 > 366 || interval <=0){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+            function move(st,et) {
+                let interval = new Date(et)-new Date(st);
+                if(interval/86400000 > 200){ 
+                    sec = 35/100*1000;
+                }else if(interval/86400000 > 100){
+                    sec = 15/100*1000;
+                }else if(interval/86400000 > 30){
+                    sec = 5/100*1000;
+                }else {
+                    sec = 1/100*1000;
+                }
+                var width = 0;
+                var id = setInterval(frame, sec);  //set time
+                function frame() {
+                    if (width == 98) {
+                      clearInterval(id);
+                    } else {
+                      width++; 
+                      $('#myBar').css("width",width+"%");
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>

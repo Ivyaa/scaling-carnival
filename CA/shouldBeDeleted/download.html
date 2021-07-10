@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <script src="../script/preLoad.js"></script>
+        <style>
+        </style>
+    </head>
+  
+    <body>   
+        <script src="../script/cookie.js"></script> 
+        <div id='navigation'></div>
+        
+        <!-- set time -->
+        <form class="container-fluid form-inline">
+            <h4 class="pt-3 px-4"><strong>請輸入時間 </strong></h4>
+            <div class="form-row px-4 col-12">
+                <div class="form-group p-2 col-md-5">
+                    <label for="time" class="mx-2">開始時間 : </label>
+                    <input type="datetime-local" name="etime" id="stime" class="form-control" required>
+                </div>
+                <div class="form-group p-2 col-md-5">
+                    <label for="observer" class="mx-2">結束時間 : </label>
+                    <input type="datetime-local" name="etime" id="etime" class="form-control" required>
+                </div>
+                <button id="checkTime" type="button" class="btn btn-dark col-12 col-md-1 p-2">確認</button>
+            </div>
+        </form>
+        
+        <!-- variables -->
+        <div class="container-fluid">
+            <h4 class="pt-3 px-4">
+                <strong id="p1">請選擇要下載的資料</strong>
+            <h4>
+            <div id="btns" class="row px-4 "></div>
+            <div id="dataSubmit" class="row px-4 ">
+                <button id="varSubmit" type="button" class="btn btn-primary btn-block col-12 p-2" >資料送出</button>
+            </div>
+        </div>
+      
+        <script type="text/javascript">
+            var btnList={};
+            var dlVars=[];
+            $('#stime').val('2019-01-01T01:01');
+            $('#etime').val('2019-01-01T01:05');
+
+            $(document).ready(function(){
+                $("#p1").hide();
+                $("#dataSubmit").hide();
+                 
+                //查詢資料庫有的資料
+                $("#checkTime").click(function(){
+                    $("#p1").show();
+                    $("#dataSubmit").show();
+                    dlVars=[];
+                    
+                    let url = 'http://140.115.35.136:8044/cgi-bin/getVars.py';///////////////////////////////////////
+                    let data = {
+                            timeRange:[$("#stime").val(),$("#etime").val()]
+                        };
+                    let dataSend = Object.keys(data).map(function (keyName) {
+                                    return escape(keyName) + '=' + escape(data[keyName])
+                    }).join('&');
+                    fetch(url, {
+                        method: 'POST',
+                        body: dataSend,
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                        }
+                    }).then(res => res.json())
+                    .catch(error => console.error('Error:', error))
+                    .then(response => {
+                        console.log(response,typeof(response));
+                        btnList = response['dataAvalible'];
+                    
+                        console.log(btnList);
+                        let i;
+                        let text = "";
+                        for (i = 0; i < btnList.length; i++) {
+                            text += '<button type="button" class="btn btn-outline-secondary col-12 col-md-3 p-2 m-1" data-toggle="button" onclick="collectVars(\''+btnList[i]+'\')">'+btnList[i]+"</button>"+"</br>";
+                            //text += '<input type="checkbox" name="dlVars "class="m-2">'+btnList[i]+'</br>';
+                            //console.log('<button type="button" class="btn btn-outline-secondary col-12 col-md-1 p-2 m-1" data-toggle="button" onclick="collectVars(\''+btnList[i]+'\')">'+btnList[i]+"</button>"+"</br>");
+                            }
+                        ///console.log(text);
+                        $("#btns").html(text);
+                    });
+                });
+                
+                //下載資料
+                $("#varSubmit").click(function(){
+                    let url = 'http://140.115.35.136:8044/cgi-bin/download.py';
+                    let data = {
+                            dataVar:dlVars,
+                            timePeriod:[$("#stime").val(),$("#etime").val()]
+                        };  
+                    let dataSend = Object.keys(data).map(function (keyName) {
+                                    return escape(keyName) + '=' + escape(data[keyName])
+                    }).join('&');
+                    
+                    fetch(url, {
+                        method: 'POST',
+                        body: dataSend,
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                        }
+                    }).then(res => res.blob())
+                    .catch(error => console.error('Error:', error))
+                    .then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        console.log(blob);
+                        let a = document.createElement('a');
+                        a.download = 'download.txt';
+                        a.href = url;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();// document.body.removeChild(a)
+                    })
+                    .catch(err => console.error(err));
+                });
+            });
+              
+            function collectVars(a){
+                if(dlVars.includes(a)){
+                    let index=dlVars.indexOf(a);
+                    dlVars.splice(index,1);
+                    console.log("no",dlVars);
+                }else{
+                    dlVars.push(a);
+                    console.log("yes",dlVars);
+                }
+            }
+        </script>
+    </body>
+</html>

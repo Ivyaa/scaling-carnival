@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <script src="./script/preLoad.js"></script>
+        <script src="./script/time.js"></script>
+        <script src="./script/cookietest.js"></script>
+        <link href="./css/login_css.css" rel="stylesheet">
+    </head>
+    <body class="text-center container">
+        
+        <div id='navigation' style="display:none"></div>
+        
+        <form class="form-signin">
+          <img class="mb-4" src="./material/NAHO_logo.png" alt="" width="150" height="150">
+          <h1 class="h3 mb-3 font-weight-normal">使用者登入/CA</h1>
+          <label for="inputEmail" class="sr-only">使用者</label>
+          <input type="text" id="user-name" name="name" class="form-control" placeholder="User" required autofocus>
+          <label for="inputPassword" class="sr-only">密碼</label>
+          <input type="password" id="inputPassword" name="pwd" class="form-control" placeholder="Password" required>
+          <div class="mb-3">
+            <label>
+              <input type="checkbox" value="remember-me" hidden> 
+            </label>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block" type="button">登入</button>
+          <p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p>
+        </form>
+    <script type="text/javascript">
+        
+        $('button').click(function(){
+            //checkCookie();
+            var logintime = getTimeNow();
+            let uri = 'http://140.115.35.136:8044/cgi-bin/test/login.py';
+            let data = { user:$('#user-name').val(),
+                         pwd:$('#inputPassword').val(),
+                         loginTime:logintime.replace('T',' '),
+                         lab:'CA'
+            };
+            let dataSend = Object.keys(data).map(function (keyName) {
+                           return escape(keyName) + '=' + escape(data[keyName])
+            }).join('&');
+            
+            fetch(uri, {
+              method:'POST',
+              body:dataSend,
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+              },
+            })
+            .then(res => res.text())   
+            .catch(error => console.error('Error:', error))
+            .then(result => {
+                if(result != 0){
+                    alert('登入成功');
+                    setCookie('User',data['user'],5);
+                    setCookie('Time',data['loginTime'],5);
+                    setCookie('Name',result,5);
+                    window.location="http://naho.atm.ncu.edu.tw/CA/homepage.html";
+                    
+                }else{
+                    alert('登入失敗');
+                };
+            });
+        });
+    </script>
+    </body>
+</html>
